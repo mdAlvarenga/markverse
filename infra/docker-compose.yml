@@ -7,7 +7,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./infra/caddy/Caddyfile:/etc/caddy/Caddyfile
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data
       - caddy_config:/config
     networks:
@@ -32,7 +32,7 @@ services:
     depends_on:
       - postgres-n8n
     volumes:
-      - ./infra/n8n:/home/node/.n8n
+      - ./n8n:/home/node/.n8n
     networks:
       - xarvis
 
