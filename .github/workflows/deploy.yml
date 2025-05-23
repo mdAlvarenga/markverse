@@ -22,7 +22,7 @@ jobs:
       - name: Deploy app on VPS
         run: |
           ssh -i ~/.ssh/id_ed25519 github-actions@31.97.20.200 << 'EOF'
-            cd /home/github-actions/markverse
+            cd /home/github-actions/markverse/infra
             git pull origin main
             docker compose up -d --build
           EOF
