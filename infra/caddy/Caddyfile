@@ -1,0 +1,43 @@
+# n8n (asistente personal)
+agente.markverse.io {
+  reverse_proxy n8n:5678
+  encode gzip
+  tls marcos.014.dev@gmail.com
+  log {
+    output stdout
+    format console
+  }
+}
+
+# xarvis-core (backend de xarvis)
+api.markverse.io {
+  reverse_proxy xarvis-core:8080
+  encode gzip
+  tls marcos.014.dev@gmail.com
+  log {
+    output stdout
+    format console
+  }
+}
+
+# Teórico frontend futuro.
+# app.markverse.io {
+#   reverse_proxy frontend-app:80
+#   encode gzip
+#   tls marcos.014.dev@gmail.com
+#   log {
+#     output stdout
+#     format console
+#   }
+# }
+
+# Teórico backend futuro.
+# backend.markverse.io {
+#   reverse_proxy backend-app:8080
+#   encode gzip
+#   tls marcos.014.dev@gmail.com
+#   log {
+#     output stdout
+#     format console
+#   }
+# }
