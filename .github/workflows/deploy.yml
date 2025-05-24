@@ -49,9 +49,8 @@ jobs:
           ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=yes -o UserKnownHostsFile=~/.ssh/known_hosts ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
             set -e
             cd /home/github-actions/markverse/infra
-            mkdir -p ./n8n
-            chown -R 1000:1000 ./n8n
-            git pull origin main
+            mkdir -p ./n8n || true
+            git pull --rebase origin main
             docker compose pull
             docker compose up -d --remove-orphans
           EOF

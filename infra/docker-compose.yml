@@ -12,6 +12,8 @@ services:
       - caddy_config:/config
     networks:
       - xarvis
+    user: "1000:1000"
+
 
   n8n:
     image: n8nio/n8n
@@ -35,6 +37,8 @@ services:
       - ./n8n:/home/node/.n8n
     networks:
       - xarvis
+    user: "1000:1000"
+
 
   postgres-n8n:
     image: postgres:14
