@@ -1,0 +1,44 @@
+name: Deploy xarvis-core manually
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Versión/tag de la imagen Docker (ej: latest, v1.2.3, sha256:...)"
+        required: true
+        default: "latest"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Deploy xarvis-core en versión seleccionada
+        run: |
+          set -euo pipefail
+
+          echo "Configurando SSH"
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+          echo "Confiando en el VPS"
+          ssh-keyscan -t ed25519 -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+          echo "Desplegando xarvis-core versión '${{ github.event.inputs.version }}'"
+          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=yes -o UserKnownHostsFile=~/.ssh/known_hosts ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} <<EOF
+            set -e
+            cd /home/github-actions/markverse/infra
+
+            echo "Cambiando versión de la imagen en docker-compose.yml"
+            sed -i 's|ghcr.io/mdalvarenga/xarvis-mark-i/xarvis:.*|ghcr.io/mdalvarenga/xarvis-mark-i/xarvis:${{ github.event.inputs.version }}|' docker-compose.yml
+
+            echo "Haciendo pull de la nueva imagen"
+            docker compose pull xarvis-core
+
+            echo "Levantando xarvis-core"
+            docker compose up -d xarvis-core
+          EOF
