@@ -17,12 +17,33 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H 31.97.20.200 >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
       - name: Deploy app on VPS
         run: |
-          ssh -i ~/.ssh/id_ed25519 github-actions@31.97.20.200 << 'EOF'
+          ssh -i ~/.ssh/id_ed25519 ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
             cd /home/github-actions/markverse/infra
+
+            echo "Generando .env"
+            cat > .env <<EOL
+            POSTGRES_N8N_USER=${{ secrets.POSTGRES_N8N_USER }}
+            POSTGRES_N8N_PASSWORD=${{ secrets.POSTGRES_N8N_PASSWORD }}
+            POSTGRES_N8N_DB=${{ secrets.POSTGRES_N8N_DB }}
+            POSTGRES_XARVIS_USER=${{ secrets.POSTGRES_XARVIS_USER }}
+            POSTGRES_XARVIS_PASSWORD=${{ secrets.POSTGRES_XARVIS_PASSWORD }}
+            POSTGRES_XARVIS_DB=${{ secrets.POSTGRES_XARVIS_DB }}
+            N8N_BASIC_AUTH_USER=${{ secrets.N8N_BASIC_AUTH_USER }}
+            N8N_BASIC_AUTH_PASSWORD=${{ secrets.N8N_BASIC_AUTH_PASSWORD }}
+            N8N_HOST=agente.markverse.io
+            N8N_PORT=5678
+            EOL
+
+            echo "Corrigiendo permisos de volumen de n8n"
+            mkdir -p ./n8n
+            chown -R 1000:1000 ./n8n
+
+            echo "Pull y deploy"
             git pull origin main
-            docker compose up -d --build
+            docker compose pull
+            docker compose up -d --remove-orphans
           EOF

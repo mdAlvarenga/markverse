@@ -47,14 +47,14 @@ services:
     networks:
       - xarvis
 
-  postgres-app:
+  postgres-xarvis-core:
     image: postgres:14
     environment:
-      POSTGRES_USER: ${POSTGRES_APP_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_APP_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_APP_DB}
+      POSTGRES_USER: ${POSTGRES_XARVIS_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_XARVIS_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_XARVIS_DB}
     volumes:
-      - pgdata-app:/var/lib/postgresql/data
+      - pgdata-xarvis-core:/var/lib/postgresql/data
     networks:
       - xarvis
 
@@ -65,13 +65,13 @@ services:
     networks:
       - xarvis
     depends_on:
-      - postgres-app
+      - postgres-xarvis-core
 
 volumes:
   caddy_data:
   caddy_config:
   pgdata-n8n:
-  pgdata-app:
+  pgdata-xarvis-core:
 
 networks:
   xarvis:
