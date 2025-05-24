@@ -12,23 +12,17 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Deploy app on VPS
+      - name: Deploy app on VPS (seguro)
         run: |
           echo "Configurando SSH"
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
 
-          echo "Desactivando verificación de host para CI"
-          echo "Host vps
-          HostName ${{ secrets.SSH_HOST }}
-          User ${{ secrets.SSH_USER }}
-          IdentityFile ~/.ssh/id_ed25519
-          StrictHostKeyChecking no
-          UserKnownHostsFile=/dev/null
-          " > ~/.ssh/config
+          echo "Confiando en host del VPS (clave ED25519)"
+          ssh-keyscan -t ed25519 -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
-          echo "Generando .env localmente"
+          echo "Generando archivo .env"
           cat > .env <<EOL
           POSTGRES_N8N_USER=${{ secrets.POSTGRES_N8N_USER }}
           POSTGRES_N8N_PASSWORD=${{ secrets.POSTGRES_N8N_PASSWORD }}
@@ -42,18 +36,14 @@ jobs:
           N8N_PORT=5678
           EOL
 
-          echo "Subiendo .env al servidor"
-          scp -i ~/.ssh/id_ed25519 .env vps:/home/github-actions/markverse/infra/.env
+          echo "Subiendo .env al VPS por SCP"
+          scp -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=yes -o UserKnownHostsFile=~/.ssh/known_hosts .env ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/github-actions/markverse/infra/.env
 
           echo "Ejecutando deploy remoto"
-          ssh vps << 'EOF'
+          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=yes -o UserKnownHostsFile=~/.ssh/known_hosts ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
             cd /home/github-actions/markverse/infra
-
-            echo "Ajustando permisos para volúmenes"
             mkdir -p ./n8n
             chown -R 1000:1000 ./n8n
-
-            echo "Pull del repo y despliegue"
             git pull origin main
             docker compose pull
             docker compose up -d --remove-orphans

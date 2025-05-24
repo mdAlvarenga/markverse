@@ -124,3 +124,37 @@ infra/.env
 ## Licencia
 
 MIT. Usalo, adaptalo y compartilo. Xarvis crece con vos.
+---
+
+## 🧰 Comandos útiles para producción
+
+### 🔐 Conexión SSH
+```bash
+ssh -i ~/.ssh/deploy_key_ed25519 github-actions@31.97.20.200
+scp user@host:/ruta/remota /ruta/local
+scp /ruta/local user@host:/ruta/remota
+```
+
+### 📦 Docker
+```bash
+docker ps -a                # Ver todos los contenedores
+docker stats                # Uso de CPU y RAM en tiempo real
+docker logs <contenedor>    # Ver logs
+docker exec -it <contenedor> bash  # Entrar al contenedor
+docker inspect <contenedor> # Ver detalles
+```
+
+### 🛠 Docker Compose
+```bash
+docker compose up -d
+docker compose down
+docker compose logs -f
+docker compose ps
+```
+
+### 🔄 Actualizar desde GitHub Actions
+```bash
+cd /home/github-actions/markverse/infra
+git pull
+docker compose down && docker compose up -d --build
+```
