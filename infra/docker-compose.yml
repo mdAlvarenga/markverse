@@ -63,7 +63,7 @@ services:
       - xarvis
 
   xarvis-core:
-    image: ghcr.io/mdalvarenga/xarvis-mark-i/xarvis:latest
+    image: ghcr.io/mdalvarenga/xarvis-mark-i-core/xarvis:latest
     ports:
       - "8080:8080"
     networks:
